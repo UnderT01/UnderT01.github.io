@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Закуски рецепты
+{% endblock %}
+
+{% block body %}
+<div class="all_recipes_logo">
+    <p class="all_recipes_banner">Закуски</p>
+</div>
+<div class="container_recipes">
+    {% for recipe in recipes %}
+    <article class="recipe-card">
+        <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="card-link">
+            {% if recipe.image %}
+            <img src="{{ url_for('static', filename='pictures/' ~ recipe.image) }}" alt="{{recipe.title}}"
+                 loading="lazy">
+            {% else %}
+            <img src="{{ url_for('static', filename='pictures/default.jpg') }}" alt="Not FOTO" loading="lazy">
+            {% endif %}
+            <p class="recipe_title_all">{{ recipe.title}}</p>
+        </a>
+    </article>
+    {% endfor %}
+</div>
+{% endblock %}

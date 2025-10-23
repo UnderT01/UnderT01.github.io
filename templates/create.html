@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Новый рецепт
+{% endblock %}
+
+{% block body %}
+<div class="create-banner">
+    <p class="new">Новый рецепт</p>
+</div>
+
+<div class="new-photo">
+    <form class="recipe-form" action="/create" method="post" enctype="multipart/form-data">
+        <div class="recipe-photo">
+            <img id="recipes-photo" src="" alt="Предосмотр">
+        </div>
+        <label for="fileInput" class="custom-file-label">Загрузить фото</label>
+        <input type="file" name="photo" id="fileInput" accept="image/*"><br>
+        <input type="text" name="title" placeholder="Название" class="form-control" required><br>
+        <textarea name="description" placeholder="Описание (необязательно)" class="form-control"></textarea><br>
+        <textarea name="instructions" placeholder="Рецепт" class="form-control" required></textarea><br>
+        <select name="category" required>
+            <option value="горячее">Горячее</option>
+            <option value="холодное">Холодное</option>
+            <option value="салат">Салаты</option>
+            <option value="закуска">Закуски</option>
+            <option value="супы">Супы</option>
+            <option value="доставка">Доставка</option>
+        </select>
+        <button type="submit">Создать</button>
+    </form>
+</div>
+<script>
+    document.getElementById("fileInput").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById("recipes-photo").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+</script>
+{% endblock %}

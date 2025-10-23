@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+
+{% block body %}
+{% if recipe.image %}
+<div class="container-detail-recipe">
+    <img class="recipe_img_main" src="{{ url_for('static', filename='pictures/' ~ recipe.image) }}"
+         alt="{{ recipe.title }}">
+    {% else %}
+    <img class="recipe_img_main" src="{{ url_for('static', filename='pictures/default.jpg') }}" alt="Not FOTO">
+    {% endif %}
+
+    <h1 class="recipe_title_main">{{ recipe.title }}</h1>
+</div>
+<div class="container_recipe">
+    {% if recipe.description %}
+    <p class="description-logo">Описание</p>
+    <p class="recipe_description_main">{{ recipe.description }}</p>
+    {% endif %}
+    <p class="instructions-logo">Рецепт</p>
+    <p class="recipe_instructions_main">{{ recipe.instructions }}</p>
+</div>
+<div class="container-redaction">
+    <a href="/recipe/{{ recipe.id }}/delete" class="btn-delete">Удалить</a>
+    <a href="/recipe/{{ recipe.id }}/update" class="btn-update">Редактировать</a>
+</div>
+{% endblock %}

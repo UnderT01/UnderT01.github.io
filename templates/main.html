@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link text="text/css" href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <title>Главная страница</title>
+</head>
+<body>
+<div class="header">
+    <div class="logo">
+        <a href="/">COOKING</a>
+        <div class="banner">
+            <a href="/">KOTYA <span>&</span> SHPROT</a>
+        </div>
+    </div>
+</div>
+<div class="search-block">
+    <img src="{{ url_for('static', filename='pictures/bread.png') }}" class="img-search">
+    <form action="{{ url_for('search') }}" method="get" class="search-line">
+        <input type="search" name="q" placeholder="Поиск рецепта...">
+        <button type="submit">
+            <img src="{{ url_for('static', filename='lupa.png') }}" alt="Поиск" width="20" height="20">
+        </button>
+    </form>
+</div>
+
+
+<div class="categorys">
+    <div class="category-hot">
+        <img src="{{ url_for('static', filename='pictures/горячее.jpg') }}" class="hot">
+        <p class="hot-link"><a href="/hot-recipes">Горячее</a></p>
+    </div>
+    <div class="category-cold">
+        <p class="cold-link"><a href="/cold-recipes">Холодное</a></p>
+        <img src="{{ url_for('static', filename='pictures/IceZalypa.jpg') }}" class="cold">
+    </div>
+    <div class="category-salad">
+        <img src="{{ url_for('static', filename='pictures/салат.jpg') }}" class="salad">
+        <p class="salad-link"><a href="/salad-recipes">Салаты</a></p>
+    </div>
+    <div class="category-snacks">
+        <p class="snacks-link"><a href="/snacks-recipes">Закуски</a></p>
+        <img src="{{ url_for('static', filename='pictures/закуски.jpg') }}" class="snacks">
+    </div>
+    <div class="category-soups">
+        <img src="{{ url_for('static', filename='pictures/супы.jpg') }}" class="soups">
+        <p class="soups-link"><a href="/soups-recipes">Супы</a></p>
+    </div>
+    <div class="category-delivery">
+        <p class="delivery-link"><a href="/delivery-recipes">Доставка</a></p>
+        <img src="{{ url_for('static', filename='pictures/Кура.jpg') }}" class="delivery">
+    </div>
+    <div class="category-all">
+        <img src="{{ url_for('static', filename='pictures/all_eat.jpg') }}" class="all">
+        <p class="all-link"><a href="/all_recipes">Все</a></p>
+    </div>
+</div>
+<div class="create-your-recipe">
+    <a href="/create" class="btn-create">Создать свой рецепт +</a>
+</div>
+<div class="roulette">
+    <p class="banner-roulette">Rouletteating</p>
+</div>
+<div class="choise-roulette">
+    <p class="random">
+        ALL RANDOM <br>
+        <button id="openModalBtn" class="start-all">START</button>
+    </p>
+
+    <p class="random-category">
+        RANDOM IN CATEGORY <br>
+        <select id="categorySelect">
+            <option value="горячее">Горячее</option>
+            <option value="холодное">Холодное</option>
+            <option value="салат">Салаты</option>
+            <option value="закуска">Закуски</option>
+            <option value="супы">Супы</option>
+            <option value="доставка">Доставка</option>
+        </select>
+        <button id="openCategoryBtn" class="start-category">START</button>
+    </p>
+</div>
+
+<div id="myModal" class="modal">
+    <div class="modal-all-random">
+        <span class="close-modal">&times;</span>
+        <img id="recipe-image" src="" alt="">
+        <h2><a id="recipe-title" href="#">Рецепт</a></h2>
+        <p id="recipe-description"></p>
+        <p class="categor"><strong>Категория:</strong> <span id="recipe-category"></span></p>
+        <p id="modal-error" style="color: #b00; display:none;"></p>
+    </div>
+</div>
+<div class="end-container">
+    <svg viewBox="0 0 300 300" width="300" height="300" class="text-circle">
+        <defs>
+            <path id="circlePath" d="M 150, 150 m -120, 0 a 120,120 0 1,1 240,0 a 120,120 0 1,1 -240,0"/>
+        </defs>
+        <text font-size="48" fill="black" font-family="Arial, sans-serif">
+            <textPath href="#circlePath" startOffset="50%" text-anchor="middle">
+                Сделано мной для любимой 💛
+            </textPath>
+        </text>
+    </svg>
+</div>
+
+<script>
+    // элементы
+    const modal = document.getElementById("myModal");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const openCategoryBtn = document.getElementById("openCategoryBtn");
+    const closeBtn = document.querySelector(".close-modal");
+    const categorySelect = document.getElementById("categorySelect");
+
+    const titleEl = document.getElementById("recipe-title");
+    const imgEl = document.getElementById("recipe-image");
+    const descEl = document.getElementById("recipe-description");
+    const catEl = document.getElementById("recipe-category");
+    const errEl = document.getElementById("modal-error");
+
+    function showModal() {
+      errEl.style.display = "none";
+      modal.style.display = "flex";
+    }
+    function hideModal() {
+      modal.style.display = "none";
+    }
+    function showError(msg) {
+      errEl.innerText = msg;
+      errEl.style.display = "block";
+      titleEl.innerText = "Ошибка";
+      descEl.innerText = "";
+      catEl.innerText = "";
+      imgEl.src = "";
+      showModal();
+    }
+
+    async function loadRandom(url) {
+      try {
+        const resp = await fetch(url, {cache: "no-cache"});
+        if (!resp.ok) {
+          const text = await resp.text();
+          console.error("Server returned non-OK:", resp.status, text.slice(0,200));
+          showError("Ошибка сервера: " + resp.status);
+          return;
+        }
+        // Проверим, что ответ JSON
+        const contentType = resp.headers.get("Content-Type") || "";
+        if (!contentType.includes("application/json")) {
+          const txt = await resp.text();
+          console.error("Не JSON ответ:", txt.slice(0,200));
+          showError("Сервер вернул неожиданный ответ");
+          return;
+        }
+
+        const data = await resp.json();
+        if (data.error) {
+          showError(data.error);
+          return;
+        }
+
+        // Успех — подставляем данные
+        titleEl.innerText = data.title || "Без названия";
+        titleEl.href = `/recipe_detail/${data.id}`;
+        descEl.innerText = data.description || "";
+        catEl.innerText = data.category || "";
+        imgEl.src = data.image || "";
+        imgEl.alt = data.title || "Фото рецепта";
+        showModal();
+      } catch (err) {
+        console.error("Fetch error:", err);
+        showError("Сетевая ошибка: " + (err.message || err));
+      }
+    }
+
+    openModalBtn.addEventListener("click", () => loadRandom("/random_recipe"));
+
+    openCategoryBtn.addEventListener("click", () => {
+      const cat = categorySelect.value;
+      // используем query param, чтобы избежать проблем с кодировкой
+      const url = "/random_recipe_by_category?category=" + encodeURIComponent(cat);
+      loadRandom(url);
+    });
+
+    closeBtn.addEventListener("click", hideModal);
+    window.addEventListener("click", (e) => { if (e.target === modal) hideModal(); });
+</script>
+
+</body>
+</html>
